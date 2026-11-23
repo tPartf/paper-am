@@ -13,6 +13,10 @@ window.paperNotes = [
   topic: {{ post.topic | jsonify }},
   source: {{ post.source | jsonify }},
   reason: {{ post.reason | jsonify }},
+  takeaway: {{ post.takeaway | jsonify }},
+  caveat: {{ post.caveat | jsonify }},
+  gpu: {{ post.gpu | jsonify }},
+  openness: {{ post.openness | jsonify }},
   body: {{ post.content | markdownify | jsonify }}
 }{% unless forloop.last %},{% endunless %}
 {% endfor %}

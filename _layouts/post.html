@@ -6,4 +6,5 @@
 <h1>{{ page.title | escape }}</h1><p class="dek">{{ page.subtitle | escape }}</p>
 <p>{{ page.byline | escape }}</p><p>{{ page.reason | escape }}</p>
 {% if page.source %}<a href="{{ page.source | escape }}">论文原文 ↗</a>{% endif %}
+{% if page.takeaway or page.caveat %}<dl class="screen-summary">{% if page.takeaway %}<div><dt>关键证据</dt><dd>{{ page.takeaway | escape }}</dd></div>{% endif %}{% if page.caveat %}<div><dt>阅读边界</dt><dd>{{ page.caveat | escape }}</dd></div>{% endif %}</dl>{% endif %}
 <div class="prose">{{ content }}</div></main></html>

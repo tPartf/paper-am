@@ -1,0 +1,20 @@
+---
+layout: null
+permalink: /assets/entries.js
+---
+window.paperNotes = [
+{% for post in site.posts %}
+{
+  id: {{ post.id | jsonify }},
+  date: {{ post.date | date: "%Y-%m-%d" | jsonify }},
+  title: {{ post.title | jsonify }},
+  subtitle: {{ post.subtitle | jsonify }},
+  byline: {{ post.byline | jsonify }},
+  topic: {{ post.topic | jsonify }},
+  source: {{ post.source | jsonify }},
+  reason: {{ post.reason | jsonify }},
+  body: {{ post.content | markdownify | jsonify }}
+}{% unless forloop.last %},{% endunless %}
+{% endfor %}
+];
+

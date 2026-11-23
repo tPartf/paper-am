@@ -1,0 +1,13 @@
+title: 论文晨读
+lang: zh-CN
+timezone: Asia/Shanghai
+permalink: /notes/:year/:month/:day/:title/
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+exclude:
+  - README.md
+

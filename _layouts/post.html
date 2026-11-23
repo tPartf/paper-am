@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ page.title | escape }} · 论文晨读</title>
+<link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+<main class="note standalone"><a href="{{ '/' | relative_url }}">← 论文晨读</a>
+<p class="meta">{{ page.date | date: "%Y.%m.%d" }}　{{ page.topic | escape }}</p>
+<h1>{{ page.title | escape }}</h1><p class="dek">{{ page.subtitle | escape }}</p>
+<p>{{ page.byline | escape }}</p><p>{{ page.reason | escape }}</p>
+{% if page.source %}<a href="{{ page.source | escape }}">论文原文 ↗</a>{% endif %}
+<div class="prose">{{ content }}</div></main></html>

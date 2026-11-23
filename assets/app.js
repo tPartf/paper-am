@@ -36,17 +36,60 @@ function article(n){
 }
 function write(){
   const now=new Date();const date=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
-  main.innerHTML=`<section class="author"><h1>写一篇晨读笔记</h1><p class="form-intro">写好后下载 Markdown 文件，再<a href="https://github.com/tPartf/paper-am/upload/gh-pages/_posts" target="_blank" rel="noopener noreferrer">上传到发布分支的笔记目录</a>并提交。</p><form><label>论文标题<input name="title" required placeholder="How to Read a Paper"></label><div class="form-pair"><label>晨读日期<input name="date" type="date" value="${date}" required></label><label>主题<input name="topic" placeholder="阅读方法"></label></div><label>原文链接<input name="source" type="url" required placeholder="https://…" pattern="https?://.+"></label><label>作者与年份<input name="byline" placeholder="S. Keshav · 2007"></label><label>一句话导读<input name="subtitle" placeholder="今天想带着什么问题读？"></label><label>为什么选它<textarea name="reason" rows="2" required></textarea></label><label>读后笔记<textarea name="body" rows="5" placeholder="记下一个发现，或一个还想追问的问题。支持 Markdown。"></textarea></label><button class="button" type="submit">下载笔记 <span aria-hidden="true">↓</span></button><p class="status" role="status"></p></form></section>`;
+  main.innerHTML=`<section class="author"><h1>写一篇晨读笔记</h1><p class="form-intro">填好后点「去 GitHub 发布」，用有仓库写入权限的账号确认提交，首页会自动更新。</p><form><label>论文标题<input name="title" required placeholder="How to Read a Paper"></label><div class="form-pair"><label>晨读日期<input name="date" type="date" value="${date}" required></label><label>主题<input name="topic" placeholder="阅读方法"></label></div><label>原文链接<input name="source" type="url" required placeholder="https://…" pattern="https?://.+"></label><label>作者与年份<input name="byline" placeholder="S. Keshav · 2007"></label><label>一句话导读<input name="subtitle" placeholder="今天想带着什么问题读？"></label><label>为什么选它<textarea name="reason" rows="2" required></textarea></label><label>读后笔记<textarea name="body" rows="5" placeholder="记下一个发现，或一个还想追问的问题。支持 Markdown。"></textarea></label><button class="button" type="submit">去 GitHub 发布 <span aria-hidden="true">↗</span></button><p class="status" role="status"></p><div class="handoff" hidden><a class="editor-link source" target="_blank" rel="noopener noreferrer">打开 GitHub 编辑器 ↗</a><details><summary>查看或复制待发布正文</summary><label>Markdown 正文<textarea class="ready-text" readonly rows="7"></textarea></label></details><button class="copy-note" type="button">复制正文</button></div></form></section>`;
   const form=main.querySelector("form");
-  form.addEventListener("submit",e=>{
-    e.preventDefault();
-    const f=Object.fromEntries(new FormData(form)); 
-    const head=["title","subtitle","byline","topic","source","reason"].map(k=>`${k}: ${JSON.stringify(f[k].trim())}`).join("\n");
-    const file=new Blob([`---\n${head}\n---\n\n${f.body.trim()}\n`],{type:"text/markdown;charset=utf-8"});
-    const slug=f.title.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu,"-").replace(/^-|-$/g,"").slice(0,85)||"note";
-    const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=`${f.date}-${slug}.md`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-    form.querySelector(".status").textContent=`已生成 ${a.download}。提交到仓库的 _posts 文件夹后，读者就能看到。`;
+
+  const next = form.querySelector(".handoff");
+  const status = form.querySelector(".status");
+  const fullText = form.querySelector(".ready-text");
+  const editor = form.querySelector(".editor-link");
+  const copy = form.querySelector(".copy-note");
+  form.addEventListener("input", () => { next.hidden = true; status.textContent = ""; });
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(fullText.value);
+      status.textContent = "正文已复制，可以粘贴到 GitHub 编辑器。";
+    } catch {
+      form.querySelector("details").open = true;
+      fullText.focus();
+      fullText.select();
+      status.textContent = "已选中正文，请使用设备的复制命令。";
+    }
   });
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const fields = Object.fromEntries(new FormData(form));
+    for (const key of ["title", "reason"]) {
+      if (!fields[key].trim()) {
+        form.elements[key].focus();
+        status.textContent = key === "title" ? "请填写论文标题。" : "请写下推荐理由。";
+        return;
+      }
+    }
+    const header = ["title","subtitle","byline","topic","source","reason"]
+      .map(key => `${key}: ${JSON.stringify(fields[key].trim())}`).join("\n");
+    const markdown = `---\n${header}\n---\n\n${fields.body.trim()}\n`;
+    const words = fields.title.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu,"-").replace(/^-|-$/g,"");
+    const slug = [...words].slice(0,48).join("") || "note";
+    const editorUrl = new URL("https://github.com/tPartf/paper-am/new/gh-pages");
+    editorUrl.searchParams.set("filename", `_posts/${fields.date}-${slug}.md`);
+    const prefilled = new URL(editorUrl);
+    prefilled.searchParams.set("value", markdown);
+    fullText.value = markdown;
+    next.hidden = false;
+    // Long encoded URLs may exceed a browser or GitHub's request-line limit.
+    const fits = prefilled.href.length <= 6000;
+    editor.href = fits ? prefilled.href : editorUrl.href;
+    if (fits) {
+      status.textContent = "请在 GitHub 核对内容后点 Commit changes。若新标签未打开，可用下方链接重试。";
+      window.open(editor.href,"_blank","noopener,noreferrer");
+    } else {
+      status.textContent = "这篇笔记较长。请复制下方正文，打开 GitHub 编辑器，粘贴后点 Commit changes。";
+      copy.focus();
+    }
+  });
+
+
 }
 function render(focus=false){
   const hash=location.hash.slice(1)||"home";

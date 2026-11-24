@@ -6,6 +6,7 @@ window.paperNotes = [
 {% for post in site.posts %}
 {
   id: {{ post.id | jsonify }},
+  editPath: {{ post.path | jsonify }},
   date: {{ post.date | date: "%Y-%m-%d" | jsonify }},
   title: {{ post.title | jsonify }},
   subtitle: {{ post.subtitle | jsonify }},

@@ -7,4 +7,9 @@
 <p>{{ page.byline | escape }}</p><p>{{ page.reason | escape }}</p>
 {% if page.source %}<a href="{{ page.source | escape }}">论文原文 ↗</a>{% endif %}
 {% if page.takeaway or page.caveat %}<dl class="screen-summary">{% if page.takeaway %}<div><dt>关键证据</dt><dd>{{ page.takeaway | escape }}</dd></div>{% endif %}{% if page.caveat %}<div><dt>阅读边界</dt><dd>{{ page.caveat | escape }}</dd></div>{% endif %}</dl>{% endif %}
-<div class="prose">{{ content }}</div></main></html>
+{% if page.path %}
+{% assign note_path_parts = page.path | split: "/" %}
+<div class="prose"><p><a class="source" href="https://github.com/tPartf/paper-am/edit/gh-pages/{% for part in note_path_parts %}{{ part | url_encode | replace: '+', '%20' }}{% unless forloop.last %}/{% endunless %}{% endfor %}" target="_blank" rel="noopener noreferrer">写我的评论 · GitHub ↗</a></p><p>有仓库写入权限的话，可在正文末尾添加 <code>## 我的评论</code>，写下想法后提交到 <code>gh-pages</code>。提交后评论会公开显示。</p></div>
+{% endif %}
+<div class="prose">{{ content }}</div>
+</main></html>

@@ -119,10 +119,15 @@ function archive(){
   }
   q.addEventListener("input",filter);main.querySelector(".filters").addEventListener("change",filter);filter();
 }
+function editNoteLink(n){
+  if(typeof n.editPath !== "string" || !/^_posts\/[^/]+\.md$/i.test(n.editPath)) return "";
+  const editUrl = "https://github.com/tPartf/paper-am/edit/gh-pages/" + n.editPath.split("/").map(encodeURIComponent).join("/");
+  return `<div class="prose"><p><a class="source" href="${esc(editUrl)}" target="_blank" rel="noopener noreferrer">写我的评论 · GitHub ↗</a></p><p>有仓库写入权限的话，可在正文末尾添加 <code>## 我的评论</code>，写下想法后提交到 <code>gh-pages</code>。提交后评论会公开显示。</p></div>`;
+}
 function article(n){
   if(!n){main.innerHTML=`<section class="interior"><h1>这篇笔记还未收录</h1><a class="all" href="#archive">浏览全部笔记</a></section>`; return;}
   document.title=`${n.title} · 论文晨读`;
-  main.innerHTML=`<article class="note"><a class="back" href="#archive">← 全部笔记</a><div class="meta"><time>${fmtDate(n.date)}</time><span class="topic">${esc(topicOf(n))}</span></div><h1 lang="en">${esc(n.title)}</h1><p class="dek">${esc(n.subtitle || "")}</p><div class="citation"><span>${esc(n.byline || "")}</span>${sourceLink(n)}</div>${n.reason?`<aside class="pull"><h2>为什么选它</h2><p>${esc(n.reason)}</p></aside>`:""}${guideSummary(n)}<div class="prose">${n.body || ""}</div><a class="back lower" href="#archive">← 回到全部笔记</a></article>`;
+  main.innerHTML=`<article class="note"><a class="back" href="#archive">← 全部笔记</a><div class="meta"><time>${fmtDate(n.date)}</time><span class="topic">${esc(topicOf(n))}</span></div><h1 lang="en">${esc(n.title)}</h1><p class="dek">${esc(n.subtitle || "")}</p><div class="citation"><span>${esc(n.byline || "")}</span>${sourceLink(n)}</div>${n.reason?`<aside class="pull"><h2>为什么选它</h2><p>${esc(n.reason)}</p></aside>`:""}${guideSummary(n)}${editNoteLink(n)}<div class="prose">${n.body || ""}</div><a class="back lower" href="#archive">← 回到全部笔记</a></article>`;
 }
 function write(){
   const now=new Date();const date=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
